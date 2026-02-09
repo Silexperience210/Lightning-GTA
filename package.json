@@ -1,0 +1,14 @@
+{
+  "name": "lightning-gta",
+  "version": "1.0.0",
+  "description": "Sat Hunter - Lightning-Powered PvP Game",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["bitcoin", "lightning", "game", "pvp"],
+  "author": "Silexperience",
+  "license": "MIT"
+}
