@@ -43,6 +43,37 @@ app.get('/api/sessions', (req, res) => {
   res.json(gameState.getAvailableSessions());
 });
 
+// Create a new custom session
+app.post('/api/sessions', (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || name.trim().length < 3) {
+      return res.status(400).json({ success: false, error: 'Session name must be at least 3 characters' });
+    }
+
+    const sessionId = gameState.createCustomSession(name.trim());
+    if (!sessionId) {
+      return res.status(409).json({ success: false, error: 'Session name already exists' });
+    }
+
+    res.json({ success: true, sessionId });
+  } catch (error) {
+    console.error('[API] Error creating session:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get auto session (creates one if none exists)
+app.get('/api/sessions/auto', (req, res) => {
+  try {
+    const sessionId = gameState.getOrCreateAutoSession();
+    res.json({ success: true, sessionId });
+  } catch (error) {
+    console.error('[API] Error getting auto session:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Webhook endpoint for LNbits payment notifications
 app.post('/webhook/lnbits', (req, res) => {
   try {
