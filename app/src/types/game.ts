@@ -86,6 +86,7 @@ export interface LeaderboardEntry {
 export interface LightningInvoice {
   paymentRequest: string;
   checkingId: string;
+  paymentHash: string;
   amount: number;
 }
 
