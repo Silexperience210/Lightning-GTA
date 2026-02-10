@@ -325,8 +325,12 @@ export const useGameStore = create<GameState>((set, get) => ({
             player: get().player ? { ...get().player!, balance: response.balance } : null
           });
           resolve(true);
+        } else if (response.success && !response.verified) {
+          // Payment still pending - don't show error, just return false
+          console.log('[Payment] Still pending...');
+          resolve(false);
         } else {
-          set({ errorMessage: response.message || 'Payment not verified' });
+          set({ errorMessage: response.error || 'Payment verification failed' });
           resolve(false);
         }
       });
