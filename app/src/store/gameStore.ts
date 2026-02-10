@@ -224,10 +224,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       set({ 
         paymentVerified: true,
         showQrCode: false,
+        phase: 'lobby',
         player: get().player ? { ...get().player!, balance: data.balance } : null
       });
-      // Auto-redirect to lobby
-      setPhase('lobby');
     });
 
     set({ socket });
