@@ -296,8 +296,16 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       socket.emit('payment:create', {}, (response: any) => {
         if (response.success) {
+          console.log('[Payment] Invoice created:', response.invoice);
+          // Ensure all fields are present
+          const invoice = {
+            paymentHash: response.invoice.paymentHash,
+            paymentRequest: response.invoice.paymentRequest,
+            checkingId: response.invoice.checkingId,
+            amount: 1000
+          };
           set({ 
-            currentInvoice: response.invoice,
+            currentInvoice: invoice,
             showQrCode: true
           });
           resolve(true);
@@ -319,6 +327,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         return;
       }
 
+      console.log('[Payment] Verifying with hash:', currentInvoice.paymentHash);
       socket.emit('payment:verify', { paymentHash: currentInvoice.paymentHash }, (response: any) => {
         if (response.success && response.verified) {
           console.log('[Payment] Verified successfully!');
