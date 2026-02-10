@@ -55,6 +55,9 @@ export function LobbyScreen() {
   const [creating, setCreating] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newSessionName, setNewSessionName] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newSessionName, setNewSessionName] = useState('');
 
   const handleClassSelect = async (classId: 'tank' | 'assassin' | 'hacker') => {
     const success = await selectClass(classId);
@@ -63,11 +66,19 @@ export function LobbyScreen() {
     }
   };
 
-  const handleJoinSession = async () => {
+  const handleJoinAutoSession = async () => {
     setJoining(true);
-    const sessionId = `arena-${Date.now()}`;
-    await joinSession(sessionId);
+    await joinAutoSession();
     setJoining(false);
+  };
+
+  const handleCreateSession = async () => {
+    if (!newSessionName.trim() || newSessionName.trim().length < 3) return;
+    setCreating(true);
+    await createSession(newSessionName.trim());
+    setCreating(false);
+    setShowCreateDialog(false);
+    setNewSessionName('');
   };
 
   const canStart = session && Object.keys(session.players).length >= 2;
