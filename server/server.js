@@ -43,6 +43,14 @@ app.get('/api/sessions', (req, res) => {
   res.json(gameState.getAvailableSessions());
 });
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../app/dist')));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../app/dist/index.html'));
+});
+
 // Socket.io connection handler
 io.on('connection', (socket) => {
   console.log(`[Socket] Client connected: ${socket.id}`);
