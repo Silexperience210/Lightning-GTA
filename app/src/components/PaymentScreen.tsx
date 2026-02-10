@@ -22,6 +22,7 @@ export function PaymentScreen() {
   const [checking, setChecking] = useState(false);
   const [autoCheck, setAutoCheck] = useState(true);
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
+  const [checkCount, setCheckCount] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export function PaymentScreen() {
 
     intervalRef.current = setInterval(async () => {
       console.log('[Payment] Auto-checking payment status...');
+      setCheckCount(prev => prev + 1);
       const success = await verifyPayment();
       if (success) {
         console.log('[Payment] Payment confirmed! Redirecting to lobby...');
@@ -44,6 +46,7 @@ export function PaymentScreen() {
         setPhase('lobby');
       } else {
         setLastCheck(new Date());
+        // Payment pending - continue polling
       }
     }, 3000);
 
@@ -105,6 +108,12 @@ export function PaymentScreen() {
             <div className="flex items-center justify-center gap-2 text-sm text-green-400">
               <RefreshCw className="w-4 h-4 animate-spin" />
               <span>Auto-checking payment every 3 seconds...</span>
+            </div>
+          )}
+
+          {checkCount > 0 && (
+            <div className="text-center text-xs text-slate-500">
+              Checks: {checkCount} | Last: {lastCheck?.toLocaleTimeString() || 'Never'}
             </div>
           )}
 
