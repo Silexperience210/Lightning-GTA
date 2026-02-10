@@ -52,6 +52,9 @@ export function LobbyScreen() {
   
   const [selectedClass, setSelectedClass] = useState<'tank' | 'assassin' | 'hacker'>(player?.classType || 'assassin');
   const [joining, setJoining] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newSessionName, setNewSessionName] = useState('');
 
   const handleClassSelect = async (classId: 'tank' | 'assassin' | 'hacker') => {
     const success = await selectClass(classId);
