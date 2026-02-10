@@ -199,29 +199,39 @@ class LNbitsService {
 
   /**
    * Vérification COMBINÉE - Utilise toutes les méthodes
+   * Priorité: Balance > History > Payment Hash
+   * (demo.lnbits.com a des bugs avec payment_hash)
    */
   async verifyPaymentCombined(invoiceKey, paymentHash, expectedAmount) {
     console.log(`[LNbits] Starting combined verification...`);
 
-    // Méthode 1: Par payment_hash
-    const statusResult = await this.checkPaymentStatus(invoiceKey, paymentHash);
-    if (statusResult.paid) {
-      return { paid: true, method: 'payment_hash', details: statusResult.details };
+    // Méthode 1: Par balance (LA PLUS FIABLE sur demo.lnbits.com)
+    console.log(`[LNbits] Checking by balance first...`);
+    const balanceResult = await this.checkPaymentByBalance(invoiceKey, expectedAmount);
+    if (balanceResult.paid) {
+      console.log(`[LNbits] ✓ PAID detected by balance: ${balanceResult.balance} sats`);
+      return { paid: true, method: 'balance', balance: balanceResult.balance };
     }
+    console.log(`[LNbits] Balance: ${balanceResult.balance}/${expectedAmount} sats - not enough`);
 
     // Méthode 2: Par historique
+    console.log(`[LNbits] Checking by history...`);
     const historyResult = await this.checkPaymentByHistory(invoiceKey, paymentHash);
     if (historyResult.paid) {
+      console.log(`[LNbits] ✓ PAID detected by history`);
       return { paid: true, method: 'history', details: historyResult.details };
     }
 
-    // Méthode 3: Par balance
-    const balanceResult = await this.checkPaymentByBalance(invoiceKey, expectedAmount);
-    if (balanceResult.paid) {
-      return { paid: true, method: 'balance', balance: balanceResult.balance };
+    // Méthode 3: Par payment_hash (souvent bugué sur demo.lnbits.com)
+    console.log(`[LNbits] Checking by payment hash...`);
+    const statusResult = await this.checkPaymentStatus(invoiceKey, paymentHash);
+    if (statusResult.paid) {
+      console.log(`[LNbits] ✓ PAID detected by payment_hash`);
+      return { paid: true, method: 'payment_hash', details: statusResult.details };
     }
 
     // Aucune méthode n'a trouvé le paiement
+    console.log(`[LNbits] ✗ Payment not verified by any method`);
     return { 
       paid: false, 
       error: 'Payment not verified by any method',
