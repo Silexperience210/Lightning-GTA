@@ -319,6 +319,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       socket.emit('payment:verify', { paymentHash: currentInvoice.paymentHash }, (response: any) => {
         if (response.success && response.verified) {
+          console.log('[Payment] Verified successfully!');
           set({ 
             paymentVerified: true,
             showQrCode: false,
@@ -327,9 +328,13 @@ export const useGameStore = create<GameState>((set, get) => ({
           resolve(true);
         } else if (response.success && !response.verified) {
           // Payment still pending - don't show error, just return false
-          console.log('[Payment] Still pending...');
+          console.log('[Payment] Still pending, will retry...');
+          // Clear any previous error message
+          set({ errorMessage: null });
           resolve(false);
         } else {
+          // Actual error occurred
+          console.error('[Payment] Verification error:', response.error);
           set({ errorMessage: response.error || 'Payment verification failed' });
           resolve(false);
         }
