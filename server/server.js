@@ -43,6 +43,42 @@ app.get('/api/sessions', (req, res) => {
   res.json(gameState.getAvailableSessions());
 });
 
+// Webhook endpoint for LNbits payment notifications
+app.post('/webhook/lnbits', (req, res) => {
+  try {
+    const { payment_hash, amount, pending } = req.body;
+    console.log(`[Webhook] Received payment notification: ${payment_hash?.substring(0, 20)}..., amount: ${amount}, pending: ${pending}`);
+
+    // Find player by payment hash
+    for (const [playerId, player] of gameState.players) {
+      if (gameState.pendingPayments.has(payment_hash)) {
+        console.log(`[Webhook] Found pending payment for player: ${player.name}`);
+
+        if (!pending) {
+          // Payment confirmed
+          player.balance = gameState.ENTRY_COST;
+          player.paymentVerified = true;
+          gameState.pendingPayments.delete(payment_hash);
+
+          // Notify player via socket
+          io.to(playerId).emit('payment:confirmed', {
+            balance: player.balance,
+            message: 'Payment confirmed via webhook!'
+          });
+
+          console.log(`[Webhook] Payment confirmed for ${player.name}`);
+        }
+        break;
+      }
+    }
+
+    res.status(200).json({ received: true });
+  } catch (error) {
+    console.error('[Webhook] Error:', error.message);
+    res.status(200).json({ received: true }); // Always return 200 to LNbits
+  }
+});
+
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../app/dist')));
 
