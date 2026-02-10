@@ -282,6 +282,123 @@ io.on('connection', (socket) => {
   });
 
   // =====================================================
+  // SESSION - CREATE
+  // =====================================================
+  socket.on('session:create', (data, callback) => {
+    try {
+      const { name } = data;
+      const player = gameState.getPlayer(socket.id);
+
+      if (!player) {
+        return callback({ success: false, error: 'Player not found' });
+      }
+
+      if (!player.paymentVerified && player.balance < gameState.ENTRY_COST) {
+        return callback({ success: false, error: 'Payment required' });
+      }
+
+      if (!name || name.trim().length < 3) {
+        return callback({ success: false, error: 'Session name must be at least 3 characters' });
+      }
+
+      // Create custom session
+      const sessionId = gameState.createCustomSession(name.trim());
+      if (!sessionId) {
+        return callback({ success: false, error: 'Session name already exists' });
+      }
+
+      const session = gameState.getSession(sessionId);
+
+      // Add player to session
+      const added = gameState.addPlayerToSession(sessionId, player);
+      if (!added) {
+        return callback({ success: false, error: 'Failed to join session' });
+      }
+
+      // Join socket room
+      socket.join(sessionId);
+
+      console.log(`[Session:Create] ${player.name} created and joined session ${sessionId}`);
+
+      callback({
+        success: true,
+        session: {
+          id: session.id,
+          status: session.status,
+          players: Object.values(session.players).map(p => ({
+            id: p.id,
+            name: p.name,
+            classType: p.classType,
+            isAlive: p.isAlive
+          })),
+          maxPlayers: session.maxPlayers
+        }
+      });
+    } catch (error) {
+      console.error('[Session:Create] Error:', error.message);
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // =====================================================
+  // SESSION - JOIN AUTO
+  // =====================================================
+  socket.on('session:joinAuto', (data, callback) => {
+    try {
+      const player = gameState.getPlayer(socket.id);
+
+      if (!player) {
+        return callback({ success: false, error: 'Player not found' });
+      }
+
+      if (!player.paymentVerified && player.balance < gameState.ENTRY_COST) {
+        return callback({ success: false, error: 'Payment required' });
+      }
+
+      // Get or create auto session
+      const sessionId = gameState.getOrCreateAutoSession();
+      const session = gameState.getSession(sessionId);
+
+      // Add player to session
+      const added = gameState.addPlayerToSession(sessionId, player);
+      if (!added) {
+        return callback({ success: false, error: 'Session full or already started' });
+      }
+
+      // Join socket room
+      socket.join(sessionId);
+
+      console.log(`[Session:JoinAuto] ${player.name} joined auto session ${sessionId}`);
+
+      // Notify other players
+      socket.to(sessionId).emit('player:joined', {
+        id: player.id,
+        name: player.name,
+        classType: player.classType,
+        isAlive: player.isAlive
+      });
+
+      callback({
+        success: true,
+        session: {
+          id: session.id,
+          status: session.status,
+          players: Object.values(session.players).map(p => ({
+            id: p.id,
+            name: p.name,
+            classType: p.classType,
+            isAlive: p.isAlive
+          })),
+          maxPlayers: session.maxPlayers
+        }
+      });
+    } catch (error) {
+      console.error('[Session:JoinAuto] Error:', error.message);
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // =====================================================
   // SESSION - JOIN
   // =====================================================
   socket.on('session:join', (data, callback) => {
