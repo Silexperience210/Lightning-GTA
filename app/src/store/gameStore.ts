@@ -317,7 +317,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         return;
       }
 
-      socket.emit('payment:verify', { checkingId: currentInvoice.checkingId }, (response: any) => {
+      socket.emit('payment:verify', { paymentHash: currentInvoice.paymentHash }, (response: any) => {
         if (response.success && response.verified) {
           set({ 
             paymentVerified: true,
