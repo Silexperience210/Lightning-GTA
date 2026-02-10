@@ -50,6 +50,8 @@ interface GameState {
   createPayment: () => Promise<boolean>;
   verifyPayment: () => Promise<boolean>;
   joinSession: (sessionId: string) => Promise<boolean>;
+  createSession: (name: string) => Promise<boolean>;
+  joinAutoSession: () => Promise<boolean>;
   startGame: () => void;
   selectClass: (classType: string) => Promise<boolean>;
   shoot: (targetId: string, hitZone: string, isBackstab: boolean) => void;
@@ -377,6 +379,62 @@ export const useGameStore = create<GameState>((set, get) => ({
           resolve(true);
         } else {
           set({ errorMessage: response.error || 'Failed to join session' });
+          resolve(false);
+        }
+      });
+    });
+  },
+
+  createSession: (name: string) => {
+    return new Promise((resolve) => {
+      const { socket } = get();
+      if (!socket) {
+        set({ errorMessage: 'Not connected to server' });
+        resolve(false);
+        return;
+      }
+      socket.emit('session:create', { name }, (response: any) => {
+        if (response.success) {
+          set({ 
+            session: {
+              id: response.session.id,
+              status: response.session.status,
+              players: response.session.players,
+              maxPlayers: response.session.maxPlayers
+            },
+            phase: 'lobby'
+          });
+          resolve(true);
+        } else {
+          set({ errorMessage: response.error || 'Failed to create session' });
+          resolve(false);
+        }
+      });
+    });
+  },
+
+  joinAutoSession: () => {
+    return new Promise((resolve) => {
+      const { socket } = get();
+      if (!socket) {
+        set({ errorMessage: 'Not connected to server' });
+        resolve(false);
+        return;
+      }
+      socket.emit('session:joinAuto', {}, (response: any) => {
+        if (response.success) {
+          set({ 
+            session: {
+              id: response.session.id,
+              status: response.session.status,
+              players: response.session.players,
+              maxPlayers: response.session.maxPlayers
+            },
+            phase: 'lobby'
+          });
+          resolve(true);
+        } else {
+          set({ errorMessage: response.error || 'Failed to join auto session' });
           resolve(false);
         }
       });
