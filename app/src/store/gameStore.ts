@@ -220,11 +220,14 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     // Payment confirmation
     socket.on('payment:confirmed', (data) => {
+      console.log('[Socket] Payment confirmed via webhook!', data);
       set({ 
         paymentVerified: true,
         showQrCode: false,
         player: get().player ? { ...get().player!, balance: data.balance } : null
       });
+      // Auto-redirect to lobby
+      setPhase('lobby');
     });
 
     set({ socket });
