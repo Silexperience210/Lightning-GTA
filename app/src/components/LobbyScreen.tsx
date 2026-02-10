@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 interface GameClass {
   id: 'tank' | 'assassin' | 'hacker';
   name: string;
-  icon: React.ComponentType<{ className?: string }>;
+  image: string;
   description: string;
   stats: { health: string; speed: string; damage: string };
 }
@@ -18,21 +18,21 @@ const CLASSES: GameClass[] = [
   { 
     id: 'tank', 
     name: 'Tank', 
-    icon: Shield,
+    image: '/images/class-tank.jpg',
     description: '+50% HP but slower movement',
     stats: { health: '15 PV', speed: 'Slow', damage: 'Normal' }
   },
   { 
     id: 'assassin', 
     name: 'Assassin', 
-    icon: Swords,
+    image: '/images/class-assassin.jpg',
     description: 'x2 damage on backstab attacks',
     stats: { health: '10 PV', speed: 'Fast', damage: 'High' }
   },
   { 
     id: 'hacker', 
     name: 'Hacker', 
-    icon: Eye,
+    image: '/images/class-hacker.jpg',
     description: 'See enemy wallet balances',
     stats: { health: '10 PV', speed: 'Normal', damage: 'Normal' }
   }
