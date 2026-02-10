@@ -183,3 +183,23 @@ Sur Railway/Render, allez dans l'onglet "Logs" pour voir :
 ---
 
 Besoin d'aide ? Ouvrez une issue sur GitHub ou contactez-moi !
+
+
+## Webhook Configuration (Important!)
+
+To enable instant payment notifications, configure the webhook URL in your environment variables:
+
+```
+WEBHOOK_URL=https://your-railway-app.up.railway.app/webhook/lnbits
+```
+
+This allows LNbits to notify your server immediately when a payment is received,
+rather than waiting for the polling to detect it.
+
+### How Payment Verification Works (3 Methods):
+
+1. **Webhook** (instant): LNbits calls your server when payment is received
+2. **Payment History** (reliable): Checks all recent payments in the wallet
+3. **Balance Check** (fallback): Verifies if wallet balance has increased
+
+The system tries all 3 methods to ensure payment detection works reliably.
