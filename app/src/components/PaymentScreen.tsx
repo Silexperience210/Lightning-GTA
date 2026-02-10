@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Zap, Copy, Check, RefreshCwg, AlertCircle, Clock } from 'lucide-react';
-import { QRCodeVG } from 'qrcode.react';
+import { Zap, Copy, Check, RefreshCw, AlertCircle, Clock } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function PaymentScreen() {
@@ -17,21 +17,19 @@ export function PaymentScreen() {
     errorMessage,
     clearError
   } = useGameStore();
-  
+
   const [copied, setCopied] = useState(false);
   const [checking, setChecking] = useState(false);
   const [autoCheck, setAutoCheck] = useState(true);
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Créer l'invoice au chargement
   useEffect(() => {
     if (!currentInvoice) {
       createPayment();
     }
   }, []);
 
-  // POLLING AUTOMATIQUE - Vérifie le paiement toutes les 3 secondes
   useEffect(() => {
     if (!currentInvoice || !autoCheck) return;
 
@@ -47,7 +45,7 @@ export function PaymentScreen() {
       } else {
         setLastCheck(new Date());
       }
-    }, 3000); // Vérifie toutes les 3 secondes
+    }, 3000);
 
     return () => {
       if (intervalRef.current) {
@@ -92,7 +90,7 @@ export function PaymentScreen() {
             Send 1000 sats to spawn with 10 PV
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {errorMessage && (
             <Alert className="bg-red-500/20 border-red-500/50">
@@ -103,10 +101,9 @@ export function PaymentScreen() {
             </Alert>
           )}
 
-          {/* Auto-check status */}
           {autoCheck && (
             <div className="flex items-center justify-center gap-2 text-sm text-green-400">
-              <RefreshCwg className="w-4 h-4 animate-spin" />
+              <RefreshCw className="w-4 h-4 animate-spin" />
               <span>Auto-checking payment every 3 seconds...</span>
             </div>
           )}
@@ -120,7 +117,7 @@ export function PaymentScreen() {
           {showQrCode && currentInvoice && (
             <>
               <div className="bg-white p-4 rounded-lg mx-auto w-fit">
-                <QRCodeVG 
+                <QRCodeSVG 
                   value={currentInvoice.paymentRequest}
                   size={200}
                   level="M"
@@ -129,7 +126,7 @@ export function PaymentScreen() {
               </div>
 
               <div className="bg-slate-800/50 rounded-lg p-3">
-                <p>className="text-xs text-slate-400 mb-2">Lightning Invoice:</p>
+                <p className="text-xs text-slate-400 mb-2">Lightning Invoice:</p>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 text-xs text-slate-300 break-all font-mono">
                     {currentInvoice.paymentRequest.substring(0, 50)}...
@@ -152,11 +149,11 @@ export function PaymentScreen() {
                   className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
                 >
                   {checking ? (
-                    <RefreshCwg className="w-4 h-4 mr-2 animate-spin" />
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
                     <Check className="w-4 h-4 mr-2" />
                   )}
-                  {checking ? 'Checking...' : 'I\\'ve Paid'}
+                  {checking ? 'Checking...' : "I've Paid"}
                 </Button>
               </div>
 
@@ -174,7 +171,7 @@ export function PaymentScreen() {
 
           {!showQrCode && !currentInvoice && (
             <div className="text-center py-8">
-              <RefreshCwg className="w-8 h-8 animate-spin mx-auto text-orange-400 mb-4" />
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto text-orange-400 mb-4" />
               <p className="text-slate-400">Generating invoice...</p>
             </div>
           )}
