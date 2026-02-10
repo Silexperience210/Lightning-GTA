@@ -325,6 +325,45 @@ class GameState {
   }
 
   /**
+   * Obtenir ou créer une session automatiquement
+   * Si aucune session disponible, en crée une nouvelle
+   * @returns {string} - ID de la session
+   */
+  getOrCreateAutoSession() {
+    const available = this.getAvailableSessions();
+
+    if (available.length > 0) {
+      // Retourner la première session disponible
+      return available[0].id;
+    }
+
+    // Créer une nouvelle session avec un nom auto
+    const sessionNumber = this.sessions.size + 1;
+    const sessionId = `Lobby-${sessionNumber}`;
+    this.createSession(sessionId);
+    console.log(`[GameState] Auto-created session: ${sessionId}`);
+    return sessionId;
+  }
+
+  /**
+   * Créer une session personnalisée
+   * @param {string} sessionName - Nom de la session
+   * @returns {string|null} - ID de la session ou null si nom déjà pris
+   */
+  createCustomSession(sessionName) {
+    // Vérifier si le nom existe déjà
+    for (const session of this.sessions.values()) {
+      if (session.id.toLowerCase() === sessionName.toLowerCase()) {
+        return null; // Nom déjà pris
+      }
+    }
+
+    this.createSession(sessionName);
+    console.log(`[GameState] Created custom session: ${sessionName}`);
+    return sessionName;
+  }
+
+  /**
    * Acheter une arme
    * @param {string} playerId 
    * @param {string} weaponId 
