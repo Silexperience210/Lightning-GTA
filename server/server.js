@@ -173,16 +173,23 @@ io.on('connection', (socket) => {
   // =====================================================
   socket.on('payment:verify', async (data, callback) => {
     try {
-      const { checkingId } = data;
+      const { paymentHash } = data;
       const player = gameState.getPlayer(socket.id);
       
       if (!player) {
         return callback({ success: false, error: 'Player not found' });
       }
 
-      console.log(`[Payment:Verify] Checking payment for ${player.name}`);
+      console.log(`[Payment:Verify] Received data:`, JSON.stringify(data));
 
-      const status = await lnbits.checkPaymentStatus(player.lnbitsInvoiceKey, checkingId);
+      if (!paymentHash) {
+        console.log(`[Payment:Verify] No payment hash provided`);
+        return callback({ success: false, error: 'No payment hash provided' });
+      }
+
+      console.log(`[Payment:Verify] Checking payment for ${player.name}, hash: ${paymentHash.substring(0, 20)}...`);
+
+      const status = await lnbits.checkPaymentStatus(player.lnbitsInvoiceKey, paymentHash);
 
       if (status.paid) {
         console.log(`[Payment:Verify] Payment CONFIRMED for ${player.name}`);
