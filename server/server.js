@@ -156,7 +156,7 @@ io.on('connection', (socket) => {
         player.paymentVerified = true;
 
         // Remove from pending
-        gameState.pendingPayments.delete(checkingId);
+        gameState.pendingPayments.delete(paymentHash);
 
         callback({
           success: true,
